@@ -42,31 +42,41 @@ a=[]
 b=[]
 
 for y in uppers:
-    cv2.line(rotated, (0,y), (W, y), (255,0,0), 1)
-    print('comeco', y, W)
-    a.append((y, w))
+    if not conta:
+        cv2.line(rotated, (0,y), (W, y), (255,0,0), 1)
+        print('comeco', y, W)
+        a.append((y, w))
     conta = (conta+1)%3
 
 conta = 0
 for y in lowers:
-    
-    cv2.line(rotated, (0,y), (W, y), (0,255,0), 1)
-    print('fim', y, W)
-    b.append((y,W))
+    if conta == 2:
+        cv2.line(rotated, (0,y), (W, y), (0,255,0), 1)
+        print('fim', y, W)
+        b.append((y,W))
     conta = (conta+1)%3
 
 
 zipado = list(zip(a,b))
 print(zipado)
 
+i = 0
 for trecho in zipado:
     print(trecho)
-    crop_img = rotated[trecho[0][0]+1:trecho[1][0], 0:2*int(trecho[0][1])]
+    crop_img = img[trecho[0][0]+1:trecho[1][0], 0:img.shape[1]]
     print(crop_img.shape)
     CORTE = crop_img.shape[1]//26
     print(CORTE)
-    cv2.imshow('xd', crop_img)
-    cv2.waitKey(0)
-
+    #cv2.imshow('xd', crop_img)
+    #cv2.waitKey(0)
+    cv2.imwrite(f'lines/{i}.png', crop_img)
+    i += 1
 
 cv2.imwrite("result.png", rotated)
+
+from prediction import *
+import os
+
+for f in os.listdir('lines/'):
+    print(make_prediction(f'lines/{f}'))
+    #os.system(f'rm lines/{f}')
