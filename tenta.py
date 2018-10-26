@@ -61,10 +61,13 @@ zipado = list(zip(a,b))
 print(zipado)
 
 i = 0
+h = 0
 for trecho in zipado:
-    print(trecho)
-    crop_img = img[trecho[0][0]+1:trecho[1][0], 0:img.shape[1]]
-    print(crop_img.shape)
+    print("tre" , trecho, h)
+    h = trecho[0][0] - 1
+    crop_img = img[h:trecho[1][0]+2, 0:2*img.shape[1]]
+    
+    print("shape" ,crop_img.shape)
     CORTE = crop_img.shape[1]//26
     print(CORTE)
     #cv2.imshow('xd', crop_img)
@@ -74,9 +77,26 @@ for trecho in zipado:
 
 cv2.imwrite("result.png", rotated)
 
+def salvavidas(name, i):
+    ima = cv2.imread(name)
+    gray2 = cv2.cvtColor(ima, cv2.COLOR_BGR2GRAY)
+    th1, threshed1 = cv2.threshold(gray2, 127,255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)
+    reduz = cv2.reduce(threshed1, 0, cv2.REDUCE_AVG).reshape(-1)
+    left = [x for x in range(img.shape[0]-1) if reduz[x]>0]
+    position = left[0]
+    ima = ima[:,position-1:ima.shape[1]] # precisa ajustar
+    cv2.imwrite(f'cropped/{i}.png', ima)
+    return ima
+
 from prediction import *
 import os
 
+indexx = 0
 for f in os.listdir('lines/'):
-    print(make_prediction(f'lines/{f}'))
+    salvavidas(f'lines/{f}', indexx)
+    indexx+=1
+
+for f in os.listdir('cropped/'):
+    print(make_prediction(f'cropped/{f}'))
     #os.system(f'rm lines/{f}')
+    #os.system(f'rm cropped/{f}')
