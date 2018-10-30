@@ -77,10 +77,11 @@ def clean_image_points(img):
 
 def get_letters_distance(left_line, right_line):
     positions2crop = []
+    avg_pts = avg_point_size(left_line,right_line)
     for i in range(len(left_line)-1):
         i+=1
         distance = left_line[i] - right_line[i-1]
-        if distance >= 7:
+        if distance >= avg_pts:
             positions2crop.append([right_line[i-1],left_line[i]])
     return positions2crop
 
@@ -99,13 +100,21 @@ def crop_letters(img,left_line,right_line):
     croped = img[:,f:]
     cv2.imwrite('letters/croped%d.png'%(f+1),croped)
 
+def avg_point_size(left_line,right_line):
+    points_size = []
+    for x in range(len(left_line)-1):
+        points_size.append(right_line[x] - left_line[x])
+
+    return int(sum(points_size)/len(points_size))
+
 img = read_image()
 gray = tranform2gray_scale(img)
 binarized = binarize_image(gray)
-cleaned = binarized
-#cleaned = clean_image_points(binarized)
+#cleaned = binarized
+cleaned = clean_image_points(binarized)
 reduced = reduceimageinx(cleaned)
 left_line, right_line = findpointboundaries(reduced)
+print(avg_point_size(left_line,right_line))
 #draw_points_boundaries(cleaned,left_line,right_line)
 crop_letters(cleaned,left_line,right_line)
 #6
