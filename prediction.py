@@ -3,6 +3,7 @@ import torch.nn as nn
 import numpy as np
 import cv2
 from PIL import Image
+from math import ceil
 
 def make_prediction(img_path):
     model = CNN()
@@ -10,12 +11,25 @@ def make_prediction(img_path):
     image = Image.open(img_path)
     image = image.convert('RGB')
     width, height = image.size
-    num = round(width/height/0.78)
-    w = width/num
+    print(width, height)
+    num = round(width/height/0.79) # AQUI TA ERRADO
+    #num = 27 # folha a4
 
+    print('num',num)
+    #num = 7
+    #num = ceil(num)
+    w = width/num
+    print(w)
     letters = []
     for i in range(0, num):
-        cropped = image.crop((i * w, 0, (i + 1) * w, height))
+        # left upper right lower
+        begin = i * w
+        end = (i + 1) * w
+        
+        # os passos estao errados...
+        cropped = image.crop((begin, 0, end, height))
+        cv2.imshow('crop', np.asarray(cropped))
+        cv2.waitKey(0)
         # cropped.show()
         cropped = np.array(cropped)
         cropped = cv2.resize(cropped, (28, 28))
